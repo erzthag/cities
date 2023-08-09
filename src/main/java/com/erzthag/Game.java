@@ -4,11 +4,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Game implements ActionListener {
+public class Game implements ActionListener, KeyListener {
 
     JFrame frame;
     JTextField textfield;
@@ -55,6 +57,8 @@ public class Game implements ActionListener {
         textField2.setFont(myFont);
         textField2.setEditable(true);
 
+        textField2.addKeyListener(this);
+
         history = new JTextField();
         history.setBounds(30, 350, 365, 150);
         history.setFont(myFont);
@@ -87,8 +91,6 @@ public class Game implements ActionListener {
         if (index == city.length()) {
             return '(';
         }
-
-
         return checkLastChar(city, ++index);
     }
     public boolean findCity(String city) throws SQLException {
@@ -113,28 +115,23 @@ public class Game implements ActionListener {
         }
         return false;
     }
+    public void newGameButtonPressed() {
+        cities.clear();
+        textField2.setEditable(true);
+        textField2.setText("");
+        history.setText("");
+        isWin=true;
+        textfield.setText("New Game");
+        index = 1;
+        count = 0;
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
+    }
+    public void enterButtonPressed() {
         try {
-            if (e.getSource()==newGameButton){
-                cities.clear();
-                textField2.setEditable(true);
-                textField2.setText("");
-                history.setText("");
-                isWin=true;
-                textfield.setText("New Game");
-                index = 1;
-                count = 0;
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-        try {
-            if (textField2.getText().length() == 0)
+
+            if (textField2.getText().length() == 0) {
                 return;
-            if (e.getSource() == enterButton) {
-
+            } else {
                 while (isWin) {
                     city = textField2.getText();
                     textField2.setText("");
@@ -201,13 +198,43 @@ public class Game implements ActionListener {
                     }textField2.setText("");
                 }
             }
-
-
         } catch (RuntimeException ex) {
             throw new RuntimeException(ex);
         }
         finally {
             return;
+        }
+
+    }
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        try {
+            if (e.getSource()==newGameButton){
+                newGameButtonPressed();
+            }
+        }catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        if (textField2.getText().length() == 0)
+            return;
+        if (e.getSource() == enterButton) {
+            enterButtonPressed();
+        }
+    }
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        if (e.getKeyCode() == 10) {
+            enterButtonPressed();
         }
     }
 }
